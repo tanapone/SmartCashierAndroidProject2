@@ -1,4 +1,4 @@
-package com.example.tanapone.smartcashier;
+package com.example.tanapone.smartcashier.DatabaseHelper;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -20,15 +20,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "productID NUMBER PRIMARY KEY ," +
                 "productName TEXT ," +
                 "productAmount NUMBER ," +
-                "productPrice DOUBLE ," +
-                "storeID TEXT , FOREIGN KEY(storeID) REFERENCE Store(storeID))";
+                "capitalPrice DOUBLE ," +
+                "salePrice DOUBLE," +
+                "storeID NUMBER , FOREIGN KEY(storeID) REFERENCE Store(storeID))";
 
         String createOrderTableQuery = "CREATE TABLE IF NOT EXISTS Order(" +
                 "orderID NUMBER ," +
                 "orderDate DATE ," +
                 "orderProduct TEXT ," +
                 "orderAmount NUMBER ," +
-                "storeID TEXT , FOREIGN KEY(storeID) REFERENCE Store(storeID)," +
+                "storeID NUMBER , FOREIGN KEY(storeID) REFERENCE Store(storeID)," +
                 "PRIMARY KEY(orderID,orderProduct))";
 
         String createStoreQuery = "CREATE TABLE IF NOT EXISTS Store(" +
@@ -47,6 +48,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-    
+
     }
 }

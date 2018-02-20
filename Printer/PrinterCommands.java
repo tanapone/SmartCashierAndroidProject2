@@ -1,4 +1,4 @@
-package com.example.tanapone.smartcashier;
+package com.example.tanapone.smartcashier.Printer;
 
 
 /**

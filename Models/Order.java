@@ -1,8 +1,7 @@
-package com.example.tanapone.smartcashier;
+package com.example.tanapone.smartcashier.Models;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Vector;
 
 /**
  * Created by Tanapone on 28/1/2561.

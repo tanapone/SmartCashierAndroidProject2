@@ -1,4 +1,4 @@
-package com.example.tanapone.smartcashier;
+package com.example.tanapone.smartcashier.Printer;
 
 import android.graphics.Bitmap;
 import android.util.Log;
