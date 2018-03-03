@@ -7,20 +7,20 @@ import java.util.ArrayList;
  */
 
 public class Store {
-    private String storeID;
     private String storeName;
     private String storePhoneNumber;
     private String storeEmail;
-    private String storePassword;
     private String storeFB;
 
-    public String getStoreID() {
-        return storeID;
+
+    public Store(String storeName, String storePhoneNumber, String storeEmail, String storeFB) {
+        this.storeName = storeName;
+        this.storePhoneNumber = storePhoneNumber;
+        this.storeEmail = storeEmail;
+        this.storeFB = storeFB;
     }
 
-    public void setStoreID(String storeID) {
-        this.storeID = storeID;
-    }
+    public Store(){}
 
     public String getStoreName() {
         return storeName;
@@ -34,9 +34,7 @@ public class Store {
         return storePhoneNumber;
     }
 
-    public void setStorePhoneNumber(String storePhoneNumber) {
-        this.storePhoneNumber = storePhoneNumber;
-    }
+    public void setStorePhoneNumber(String storePhoneNumber) {this.storePhoneNumber = storePhoneNumber;}
 
     public String getStoreEmail() {
         return storeEmail;
@@ -44,14 +42,6 @@ public class Store {
 
     public void setStoreEmail(String storeEmail) {
         this.storeEmail = storeEmail;
-    }
-
-    public String getStorePassword() {
-        return storePassword;
-    }
-
-    public void setStorePassword(String storePassword) {
-        this.storePassword = storePassword;
     }
 
     public String getStoreFB() {
@@ -62,5 +52,13 @@ public class Store {
         this.storeFB = storeFB;
     }
 
-
+    @Override
+    public String toString() {
+        return "Store{" +
+                "storeName='" + storeName + '\'' +
+                ", storePhoneNumber='" + storePhoneNumber + '\'' +
+                ", storeEmail='" + storeEmail + '\'' +
+                ", storeFB='" + storeFB + '\'' +
+                '}';
+    }
 }
