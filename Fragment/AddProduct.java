@@ -215,8 +215,6 @@ public class AddProduct extends Fragment implements View.OnClickListener {
             product.setCategory(categoriesArray.get(categorySpinner.getSelectedItemPosition()));
             product.setProductQuantity(Integer.parseInt(amountEditText.getText().toString().trim()));
             product.setMinimum(Integer.parseInt(minimumEditText.getText().toString().trim()));
-            Toast.makeText(getActivity(),product.toString(),Toast.LENGTH_LONG).show();
-
             boolean result = myDB.addProduct(product);
             String resultWord = "";
             if(result){
@@ -224,6 +222,7 @@ public class AddProduct extends Fragment implements View.OnClickListener {
             }else{
                 resultWord = getString(R.string.global_word_failed);
             }
+            Toast.makeText(getActivity(),resultWord,Toast.LENGTH_SHORT).show();
         }
     }
 

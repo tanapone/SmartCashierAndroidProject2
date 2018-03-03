@@ -13,6 +13,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -37,26 +38,45 @@ import java.util.List;
 
 public class SearchProduct extends Fragment implements View.OnClickListener {
     private DatabaseHelperClass myDB;
-    private LinearLayout SearchLauount;
+    private Spinner categorySpinner;
     private ImageButton searchBtn;
-    private Button scanButton;
+    private ImageButton scanButton;
     private EditText searchText;
-    private String bc;
     private TableLayout listItem;
     private List<Product> list = new ArrayList<Product>();
+    private ArrayList<Category> categories = new ArrayList<Category>();
     private String barcodeResult;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        myDB = new DatabaseHelperClass(getActivity());
+        categories = myDB.getCategories();
+        ArrayList<String> categoryName = new ArrayList<String>();
+        for(Category category : categories){
+            categoryName.add(category.getCategoryName());
+        }
+        categoryName.add(getString(R.string.global_world_all));
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getActivity(), R.layout.support_simple_spinner_dropdown_item,categoryName);
         View v = inflater.inflate(R.layout.activity_sharch_product, container, false);
         listItem = v.findViewById(R.id.listItem);
-        myDB = new DatabaseHelperClass(getActivity());
-        SearchLauount=(LinearLayout) v.findViewById(R.id.searchLayout);
+        categorySpinner = (Spinner) v.findViewById(R.id.categorySpinner);
+        categorySpinner.setAdapter(arrayAdapter);
+        categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                searchProduct("Category");
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                allProduct();
+            }
+        });
         searchText = (EditText) v.findViewById(R.id.searchText);
         searchBtn = (ImageButton) v.findViewById(R.id.searchButton);
         searchBtn.setOnClickListener(this);
-        scanButton=(Button)v.findViewById(R.id.scanButton);
+        scanButton=(ImageButton) v.findViewById(R.id.scanButton);
         scanButton.setOnClickListener(this);
         allProduct();
         return v;
@@ -227,13 +247,25 @@ public class SearchProduct extends Fragment implements View.OnClickListener {
                 list.add(myDB.searchProductByBarcode(barcodeResult));
             }
 
-        }else if(condition.equals("Word")){
+        }else if(condition.equals("Word")) {
             list.clear();
             list = myDB.searchProduct(searchText.getText().toString().trim());
+            if (list.size() < 1) {
+                Toast.makeText(getActivity(), R.string.global_world_not_found, Toast.LENGTH_SHORT).show();
+            }
+        }else if(condition.equals("Category")){
+                list.clear();
+                if(categorySpinner.getSelectedItem().equals(getString(R.string.global_world_all))){
+                  list.clear();
+                  list = myDB.getProducts();
+                }else {
+                    list = myDB.getProductByCategory(categories.get(categorySpinner.getSelectedItemPosition()));
+                }
             if(list.size()<1){
                 Toast.makeText(getActivity(),R.string.global_world_not_found,Toast.LENGTH_SHORT).show();
             }
         }
+
         for (final Product product :list ){
             TableRow tableRowData = new TableRow(getActivity());
             TextView productName = new TextView(getActivity());
@@ -406,7 +438,7 @@ public class SearchProduct extends Fragment implements View.OnClickListener {
                         resultWord = getString(R.string.global_word_failed);
                     }
                     Toast.makeText(getActivity(), resultWord, Toast.LENGTH_SHORT).show();
-                    searchProduct("Word");
+                    allProduct();
                 }
             }
         });

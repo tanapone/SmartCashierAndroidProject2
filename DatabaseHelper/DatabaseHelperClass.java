@@ -206,7 +206,7 @@ public class DatabaseHelperClass extends SQLiteOpenHelper {
     public ArrayList<Product> getProductByCategory(Category category){
         ArrayList<Product> products = new  ArrayList<Product>();
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM Products",null);
+        Cursor cursor = db.rawQuery("SELECT * FROM Products WHERE categoryID = "+category.getCategoryID(),null);
         if (cursor.getCount()!=0) {
 
             while(cursor.moveToNext()){
