@@ -86,7 +86,7 @@ public class AddProduct extends Fragment implements View.OnClickListener {
     }
 
     public void scanBarcode(){
-        IntentIntegrator.forSupportFragment(this).initiateScan();
+        IntentIntegrator.forSupportFragment(this).setBeepEnabled(true).initiateScan();
 
     }
 

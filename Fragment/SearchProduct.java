@@ -53,10 +53,10 @@ public class SearchProduct extends Fragment implements View.OnClickListener {
         myDB = new DatabaseHelperClass(getActivity());
         categories = myDB.getCategories();
         ArrayList<String> categoryName = new ArrayList<String>();
+        categoryName.add(getString(R.string.global_world_all));
         for(Category category : categories){
             categoryName.add(category.getCategoryName());
         }
-        categoryName.add(getString(R.string.global_world_all));
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getActivity(), R.layout.support_simple_spinner_dropdown_item,categoryName);
         View v = inflater.inflate(R.layout.activity_sharch_product, container, false);
         listItem = v.findViewById(R.id.listItem);
@@ -143,6 +143,8 @@ public class SearchProduct extends Fragment implements View.OnClickListener {
             TableRow tableRowData = new TableRow(getActivity());
             TextView productName = new TextView(getActivity());
             productName.setGravity(Gravity.CENTER);
+            productName.setPadding(14,14,14,14);
+            productName.setBackgroundColor(Color.parseColor("#FFFFFF"));
             String pName = product.getProductName();
             if(pName.length()>13){
                 productName.setText(pName.substring(0,12)+"...");
@@ -152,11 +154,16 @@ public class SearchProduct extends Fragment implements View.OnClickListener {
             TextView productQTY = new TextView(getActivity());
             productQTY.setText(""+product.getProductQuantity());
             productQTY.setGravity(Gravity.CENTER);
+            productQTY.setPadding(14,14,14,14);
+            productQTY.setBackgroundColor(Color.parseColor("#FFFFFF"));
             ImageView delete = new ImageView(getActivity());
             delete.setImageResource(R.drawable.ic_delete_black_24dp);
+            delete.setPadding(7,7,7,7);
+            delete.setBackgroundColor(Color.parseColor("#FFFFFF"));
             ImageView upDate = new ImageView(getActivity());
             upDate.setImageResource(R.drawable.ic_build_black_24dp);
-
+            upDate.setPadding(7,7,7,7);
+            upDate.setBackgroundColor(Color.parseColor("#FFFFFF"));
             productName.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -270,6 +277,8 @@ public class SearchProduct extends Fragment implements View.OnClickListener {
             TableRow tableRowData = new TableRow(getActivity());
             TextView productName = new TextView(getActivity());
             productName.setGravity(Gravity.CENTER);
+            productName.setPadding(14,14,14,14);
+            productName.setBackgroundColor(Color.parseColor("#FFFFFF"));
             String pName = product.getProductName();
             if(pName.length()>13){
                 productName.setText(pName.substring(0,12)+"...");
@@ -279,11 +288,16 @@ public class SearchProduct extends Fragment implements View.OnClickListener {
             TextView productQTY = new TextView(getActivity());
             productQTY.setText(""+product.getProductQuantity());
             productQTY.setGravity(Gravity.CENTER);
+            productQTY.setPadding(14,14,14,14);
+            productQTY.setBackgroundColor(Color.parseColor("#FFFFFF"));
             ImageView delete = new ImageView(getActivity());
             delete.setImageResource(R.drawable.ic_delete_black_24dp);
+            delete.setPadding(7,7,7,7);
+            delete.setBackgroundColor(Color.parseColor("#FFFFFF"));
             ImageView upDate = new ImageView(getActivity());
             upDate.setImageResource(R.drawable.ic_build_black_24dp);
-
+            upDate.setPadding(7,7,7,7);
+            upDate.setBackgroundColor(Color.parseColor("#FFFFFF"));
             productName.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -294,7 +308,8 @@ public class SearchProduct extends Fragment implements View.OnClickListener {
                 @Override
                 public void onClick(View v) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setMessage(R.string.global_word_delete_confirm);
+                    builder.setTitle(R.string.global_word_delete_confirm);
+                    builder.setMessage(product.getProductName());
                     builder.setPositiveButton(R.string.global_word_yes, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             boolean result = myDB.deleteProduct(product);

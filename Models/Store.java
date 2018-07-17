@@ -7,10 +7,27 @@ import java.util.ArrayList;
  */
 
 public class Store {
+    private int storeID;
     private String storeName;
     private String storePhoneNumber;
     private String storeEmail;
     private String storeFB;
+
+    public Store(int storeID, String storeName, String storePhoneNumber, String storeEmail, String storeFB) {
+        this.storeID = storeID;
+        this.storeName = storeName;
+        this.storePhoneNumber = storePhoneNumber;
+        this.storeEmail = storeEmail;
+        this.storeFB = storeFB;
+    }
+
+    public int getStoreID() {
+        return storeID;
+    }
+
+    public void setStoreID(int storeID) {
+        this.storeID = storeID;
+    }
 
 
     public Store(String storeName, String storePhoneNumber, String storeEmail, String storeFB) {

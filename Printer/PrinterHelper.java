@@ -31,6 +31,8 @@ import com.example.tanapone.smartcashier.R;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Set;
@@ -63,6 +65,14 @@ public class PrinterHelper extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+    }
+
+    public boolean connectedBluetooth(){
+        boolean result = false;
+        if(bluetoothDevice != null){
+            result =true;
+        }
+        return result;
     }
 
     public void findBuletooth(){
@@ -219,12 +229,18 @@ public class PrinterHelper extends AppCompatActivity {
         final Calendar c = Calendar.getInstance();
         String dateTime [] = new String[2];
         dateTime[0] = c.get(Calendar.DAY_OF_MONTH) +"/"+ c.get(Calendar.MONTH) +"/"+ c.get(Calendar.YEAR);
-        dateTime[1] = c.get(Calendar.HOUR_OF_DAY) +":"+ c.get(Calendar.MINUTE);
+        dateTime[1] = c.get(Calendar.HOUR_OF_DAY) +":"+ c.get(Calendar.MINUTE)+"."+ c.get(Calendar.SECOND);
         return dateTime;
     }
 
+    public String getDate(){
+            String time = getDateTime()[0]+" "+getDateTime()[1];
+            return time;
+    }
 
-    public Bitmap drawText(String text, int textWidth, int color, int size) {
+
+    public Bitmap drawText(String text, int textWidth, int color, int size,String position) {
+
 
         // Get text dimensions
         TextPaint textPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG | Paint.LINEAR_TEXT_FLAG);
@@ -233,8 +249,14 @@ public class PrinterHelper extends AppCompatActivity {
         textPaint.setTextSize(size);
         Typeface face = Typeface.createFromAsset(context.getAssets(), "fonts/Kanit-SemiBold.ttf");
         textPaint.setTypeface(face);
-        StaticLayout mTextLayout = new StaticLayout(text, textPaint, textWidth, Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
-
+        StaticLayout mTextLayout = null;
+        if(position.equals("left")) {
+            mTextLayout = new StaticLayout(text, textPaint, textWidth, Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
+        }else if(position.equals("center")){
+            mTextLayout = new StaticLayout(text, textPaint, textWidth, Layout.Alignment.ALIGN_CENTER, 1.0f, 0.0f, false);
+        }else{
+            mTextLayout = new StaticLayout(text, textPaint, textWidth, Layout.Alignment.ALIGN_OPPOSITE, 1.0f, 0.0f, false);
+        }
         // Create bitmap and canvas to draw to
         Bitmap b = Bitmap.createBitmap(textWidth, mTextLayout.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(b);
@@ -255,11 +277,11 @@ public class PrinterHelper extends AppCompatActivity {
     }
 
 
-    public void printText(String text,int size) {
+    public void printText(String text,int size,String position) {
         try {
-            int width=400;
+            int width=385;
             int colorWhite = Color.WHITE;
-            Bitmap bmp = drawText(text,width,colorWhite,size);
+            Bitmap bmp = drawText(text,width,colorWhite,size,position);
             byte[] command = Utils.decodeBitmap(bmp);
             printText(command);
         } catch (Exception e) {
@@ -278,8 +300,40 @@ public class PrinterHelper extends AppCompatActivity {
         }
     }
 
+    public void setCenter(){
+        try{
+            outputStream.write(PrinterCommands.ESC_ALIGN_CENTER);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public void resetPrint() {
+        try{
+            outputStream.write(PrinterCommands.ESC_FONT_COLOR_DEFAULT);
+            outputStream.write(PrinterCommands.FS_FONT_ALIGN);
+            outputStream.write(PrinterCommands.ESC_ALIGN_LEFT);
+            outputStream.write(PrinterCommands.ESC_CANCEL_BOLD);
+            outputStream.write(PrinterCommands.LF);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void printUnicode(){
+        try {
+            outputStream.write(PrinterCommands.ESC_ALIGN_CENTER);
+            printText(Utils.UNICODE_TEXT);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     //print new line
-    private void printNewLine() {
+    public void printNewLine() {
         try {
             outputStream.write(PrinterCommands.FEED_LINE);
         } catch (IOException e) {
@@ -288,4 +342,8 @@ public class PrinterHelper extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onPointerCaptureChanged(boolean hasCapture) {
+
+    }
 }

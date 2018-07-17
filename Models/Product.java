@@ -24,6 +24,17 @@ public class Product {
         this.minimum = minimum;
     }
 
+    public Product(String productID, String productBarcodeID, String productName, int productQuantity, Category category, double capitalPrice, double salePrice, int minimum) {
+        this.productID = productID;
+        this.productBarcodeID = productBarcodeID;
+        this.productName = productName;
+        this.productQuantity = productQuantity;
+        this.category = category;
+        this.capitalPrice = capitalPrice;
+        this.salePrice = salePrice;
+        this.minimum = minimum;
+    }
+
     public Product(String productID, String productBarcodeID, String productName, int productQuantity, double capitalPrice, double salePrice) {
         this.productID = productID;
         this.productBarcodeID = productBarcodeID;

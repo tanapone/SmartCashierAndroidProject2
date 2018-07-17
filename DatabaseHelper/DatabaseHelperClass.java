@@ -5,14 +5,16 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.widget.ArrayAdapter;
-import android.widget.Toast;
 
 import com.example.tanapone.smartcashier.Models.Category;
+import com.example.tanapone.smartcashier.Models.Order;
 import com.example.tanapone.smartcashier.Models.Product;
 import com.example.tanapone.smartcashier.Models.Store;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -195,14 +197,28 @@ public class DatabaseHelperClass extends SQLiteOpenHelper {
         values.put("salePrice",product.getSalePrice());
         values.put("minimumQTY",product.getMinimum());
         result = db.update("Products",values,"productID = ? ",new String[] {product.getProductID()});
-        db.close(); // Closing database connection
+        db.close();
         if(result == -1){
             return false;
         }else{
             return true;
         }
-    }
 
+    }
+    public boolean updateProductQTY(String productID,String qty){
+        long result = -1;
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("productQTY",qty);
+        result = db.update("Products",values,"productID = "+productID,null);
+        db.close();
+        if(result == -1){
+            return false;
+        }else{
+            return true;
+        }
+
+    }
     public ArrayList<Product> getProductByCategory(Category category){
         ArrayList<Product> products = new  ArrayList<Product>();
         SQLiteDatabase db = this.getWritableDatabase();
@@ -230,10 +246,10 @@ public class DatabaseHelperClass extends SQLiteOpenHelper {
     public Store getStore() {
         Store stu = new Store();
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery("SELECT storeName,storePhoneNumber,storeEmail,storeFB FROM Store",null);
+        Cursor cursor = db.rawQuery("SELECT storeID,storeName,storePhoneNumber,storeEmail,storeFB FROM Store",null);
         if (cursor.getCount()!=0) {
             cursor.moveToFirst();
-            stu = new Store(cursor.getString(0),cursor.getString(1),cursor.getString(2),cursor.getString(3));
+            stu = new Store(cursor.getInt(0),cursor.getString(1),cursor.getString(2),cursor.getString(3),cursor.getString(4));
         }
         db.close();
         return stu;
@@ -266,6 +282,36 @@ public class DatabaseHelperClass extends SQLiteOpenHelper {
         return lists;
     }
 
+    public List<Product> getProductsMinimum() {
+        List<Product> lists = new ArrayList<Product>();
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery("Select productID,productBarcode,productName,productQTY,capitalPrice,salePrice,minimumQTY,categoryID  from Products where productQTY<=minimumQTY", null);
+        if (cursor.moveToFirst() && cursor.getCount() >= 1) {
+            do {
+                Product product = new Product(cursor.getString(0),cursor.getString(1), cursor.getString(2),
+                        Integer.parseInt(cursor.getString(3)),Double.parseDouble(cursor.getString(4)),Double.parseDouble(cursor.getString(5)));
+                product.setMinimum(cursor.getInt(6));
+                product.setCategory(this.getCategoryByID(cursor.getInt(7)));
+                lists.add(product);
+            }while (cursor.moveToNext());
+        }
+        db.close();
+        return lists;
+    }
+
+    public Product getProductByID(String productID){
+        Product product = new Product();
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery("Select productID,productBarcode,productName,productQTY,capitalPrice,salePrice,minimumQTY,categoryID  from Products WHERE productID = "+productID, null);
+        if (cursor.moveToFirst() && cursor.getCount() >= 1) {
+                product = new Product(cursor.getString(0),cursor.getString(1), cursor.getString(2),
+                        Integer.parseInt(cursor.getString(3)),Double.parseDouble(cursor.getString(4)),Double.parseDouble(cursor.getString(5)));
+                product.setMinimum(cursor.getInt(6));
+                product.setCategory(this.getCategoryByID(cursor.getInt(7)));
+        }
+        db.close();
+        return product;
+    }
 
     public List<Product> searchProduct(String search) {
         List<Product> lists = new ArrayList<Product>();
@@ -318,4 +364,140 @@ public class DatabaseHelperClass extends SQLiteOpenHelper {
         }
     }
 
+    public boolean addOrder(Order order){
+        long result = -1;
+        try{
+            SQLiteDatabase db = this.getWritableDatabase();
+            for(int i =0;i<order.getOrderProduct().size();i++) {
+                ContentValues values = new ContentValues();
+                values.put("orderID", order.getOrderID());
+                DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                Date date = order.getOrderDate();
+                values.put("orderDate", dateFormat.format(date));
+                values.put("orderProduct",String.valueOf(order.getOrderProduct().get(i).getProductID()));
+                values.put("orderQTY",String.valueOf(order.getOrderProduct().get(i).getProductQuantity()));
+                result = db.insert("Orders", null, values);
+            }
+            for(int i =0;i<order.getOrderProduct().size();i++){
+                Product product = new Product();
+                product = getProductByID(order.getOrderProduct().get(i).getProductID());
+                int newQty = product.getProductQuantity() - order.getOrderProduct().get(i).getProductQuantity();
+                product.setProductQuantity(newQty);
+                updateProduct(product);
+                System.out.println("Inserted : "+i);
+            }
+
+            db.close();
+        }catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        if(result==-1){
+            return false;
+        }else{
+            return true;
+        }
+    }
+
+    public String getLastOrderID(){
+        String lastID = "";
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery("SELECT MAX(orderID) FROM ORDERS",null);
+        if (cursor.moveToFirst() && cursor.getCount() >= 1) {
+            do {
+                lastID = cursor.getString(0);
+            }while (cursor.moveToNext());
+        }
+        db.close();
+        return lastID;
+    }
+
+    public boolean retriveProduct(Product product){
+        long result = -1;
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("productID",product.getProductID());
+        values.put("productBarcode",product.getProductBarcodeID());
+        values.put("productName",product.getProductName());
+        values.put("productQTY",product.getProductQuantity());
+        values.put("categoryID",product.getCategory().getCategoryID());
+        values.put("capitalPrice",product.getCapitalPrice());
+        values.put("salePrice",product.getSalePrice());
+        values.put("minimumQTY",product.getMinimum());
+        result = db.insert("Products", null, values);
+        db.close(); // Closing database connection
+        if (result == -1) {
+            return false;
+        }else{
+            return true;
+        }
+    }
+
+
+    public boolean retriveCategory(Category category){
+        long result = -1;
+        try {
+            SQLiteDatabase db = this.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put("categoryID",category.getCategoryID());
+            values.put("categoryName",category.getCategoryName());
+            result = db.insert("Categories", null, values);
+            db.close(); // Closing database connection
+        }catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        if (result == -1) {
+            return false;
+        }else{
+            return true;
+        }
+    }
+
+    public boolean updateStore(Store store) {
+        long result = -1;
+        try {
+            SQLiteDatabase db = this.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put("storeID", store.getStoreID());
+            values.put("storeName", store.getStoreName());
+            values.put("storePhoneNumber", store.getStorePhoneNumber());
+            values.put("storeEmail", store.getStoreEmail());
+            values.put("storeFB", store.getStoreFB());
+    // Updating Row
+            result = db.update("Store", values, "storeID = ?",
+                    new String[] {store.getStoreID()+""});
+            db.close(); // Closing database connection
+        }catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        if (result == -1) {
+            return false;
+        }else{
+            return true;
+        }
+    }
+
+    public void deleteTable(){
+            SQLiteDatabase db = this.getWritableDatabase();
+            db.execSQL("DELETE FROM Orders");
+            db.execSQL("DELETE FROM Categories");
+             db.execSQL("DELETE FROM Products");
+            db.close();
+    }
+
+    public ArrayList<Product> findProfit(){
+        ArrayList<Product> products = new ArrayList<Product>();
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery("SELECT orderProduct , SUM(orderQTY) FROM Orders GROUP BY orderProduct", null);
+        if (cursor.moveToFirst() && cursor.getCount() >= 1) {
+            do {
+                System.out.println("OUTPUT : "+cursor.getString(0)+","+cursor.getString(1));
+                Product product = new Product();
+                product = getProductByID(cursor.getString(0));
+                product.setProductQuantity(cursor.getInt(1));
+                products.add(product);
+            }while (cursor.moveToNext());
+        }
+        db.close();
+        return products;
+    }
 }
